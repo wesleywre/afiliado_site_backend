@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 from app.database import Base
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 
 class Promotion(Base):
     __tablename__ = "promotions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(String)
@@ -14,7 +15,7 @@ class Promotion(Base):
     approved = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # Relacionamentos
     user = relationship("User", back_populates="promotions")
     comments = relationship("Comment", back_populates="promotion")

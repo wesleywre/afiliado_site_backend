@@ -1,9 +1,12 @@
-from pydantic import BaseModel, HttpUrl
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, HttpUrl
+
 from .comment import CommentOut
 from .like import LikeOut
 from .view import ViewOut
+
 
 class PromotionBase(BaseModel):
     title: str
@@ -11,8 +14,10 @@ class PromotionBase(BaseModel):
     price: float
     description: Optional[str] = None
 
+
 class PromotionCreate(PromotionBase):
     pass
+
 
 class PromotionUpdate(BaseModel):
     title: Optional[str] = None
@@ -20,6 +25,7 @@ class PromotionUpdate(BaseModel):
     price: Optional[float] = None
     description: Optional[str] = None
     approved: Optional[bool] = None
+
 
 class PromotionOut(PromotionBase):
     id: int

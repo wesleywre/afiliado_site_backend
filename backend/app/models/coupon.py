@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 from app.database import Base
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 
 class Coupon(Base):
     __tablename__ = "coupons"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     link = Column(String, nullable=False)
@@ -13,7 +14,7 @@ class Coupon(Base):
     approved = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # Relacionamentos
     user = relationship("User", back_populates="coupons")
     comments = relationship("Comment", back_populates="coupon")

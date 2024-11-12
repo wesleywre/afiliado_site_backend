@@ -1,11 +1,15 @@
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+
 
 class ViewBase(BaseModel):
     view_count: int = 1
 
+
 class ViewCreate(ViewBase):
     pass
+
 
 class ViewOut(ViewBase):
     id: int

@@ -1,11 +1,15 @@
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+
 
 class LikeBase(BaseModel):
     pass
 
+
 class LikeCreate(LikeBase):
     pass
+
 
 class LikeOut(LikeBase):
     id: int

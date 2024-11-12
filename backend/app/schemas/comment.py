@@ -1,12 +1,16 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
+
 
 class CommentBase(BaseModel):
     text: str
 
+
 class CommentCreate(CommentBase):
     pass
+
 
 class CommentOut(CommentBase):
     id: int
