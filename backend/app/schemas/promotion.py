@@ -16,7 +16,7 @@ class PromotionBase(BaseModel):
 
 
 class PromotionCreate(PromotionBase):
-    pass
+    user_id: int
 
 
 class PromotionUpdate(BaseModel):

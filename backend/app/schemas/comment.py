@@ -9,8 +9,14 @@ class CommentBase(BaseModel):
 
 
 class CommentCreate(CommentBase):
-    pass
+    user_id: int
+    promotion_id: Optional[int] = None
+    coupon_id: Optional[int] = None
 
+class CommentUpdate(CommentBase):
+    user_id: Optional[int] = None
+    promotion_id: Optional[int] = None
+    coupon_id: Optional[int] = None
 
 class CommentOut(CommentBase):
     id: int

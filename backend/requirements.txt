@@ -5,3 +5,8 @@ psycopg2-binary
 pydantic
 alembic
 python-dotenv
+passlib[bcrypt]
+pyjwt
+pydantic[email]
+python-jose
+python-multipart
