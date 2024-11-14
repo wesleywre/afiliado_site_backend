@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from src.core.database import Base
+from src.models.promotion import Promotion
 from src.models.user import User
 
 # this is the Alembic Config object, which provides

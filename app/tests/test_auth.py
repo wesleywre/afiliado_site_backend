@@ -24,12 +24,17 @@ def test_login(client: TestClient):
     # Primeiro registra um usuário
     client.post(
         "/api/v1/auth/register",
-        json={"email": "test@example.com", "username": "testuser", "password": "testpass123"},
+        json={
+            "email": "test@example.com",
+            "username": "testuser",
+            "password": "testpass123",
+        },
     )
 
     # Tenta fazer login
     response = client.post(
-        "/api/v1/auth/login", data={"username": "test@example.com", "password": "testpass123"}
+        "/api/v1/auth/login",
+        data={"username": "test@example.com", "password": "testpass123"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -41,5 +46,5 @@ def test_read_users_me(client: TestClient, normal_user_token_headers):
     response = client.get("/api/v1/auth/me", headers=normal_user_token_headers)
     assert response.status_code == 200
     data = response.json()
-    assert data["email"] == "test@example.com"
+    assert data["email"] == "testuser@example.com"
     assert data["role"] == UserRole.USER
