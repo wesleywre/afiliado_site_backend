@@ -11,12 +11,6 @@ from src.models.user import User
 client = TestClient(app)
 
 
-@pytest.fixture
-def db_session():
-    # Implemente aqui a configuração da sessão do banco de dados de teste
-    pass
-
-
 def test_create_user(db_session: Session):
     user_data = {
         "email": "newuser@example.com",
@@ -87,7 +81,7 @@ def test_delete_user_by_admin(db_session: Session):
         username="usertodelete",
         hashed_password=get_password_hash("password"),
         is_active=True,
-        role="user",
+        role=1,
     )
     db_session.add(user)
     db_session.commit()
@@ -99,7 +93,7 @@ def test_delete_user_by_admin(db_session: Session):
         username="adminuser",
         hashed_password=get_password_hash("adminpassword"),
         is_active=True,
-        role="ADMIN",
+        role=1,
     )
     db_session.add(admin_user)
     db_session.commit()
@@ -108,6 +102,7 @@ def test_delete_user_by_admin(db_session: Session):
     # Login como admin
     login_data = {"username": "admin@example.com", "password": "adminpassword"}
     login_response = client.post("/token", data=login_data)
+    assert login_response.status_code == 200, login_response.text
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 

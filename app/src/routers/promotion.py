@@ -22,7 +22,9 @@ def create_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    promotion = PromotionModel(**promotion_in.dict(), user_id=current_user.id)
+    promotion_data = promotion_in.dict()
+    promotion_data["link"] = str(promotion_data["link"])  # Converter o link para string
+    promotion = PromotionModel(**promotion_data, user_id=current_user.id)
     db.add(promotion)
     db.commit()
     db.refresh(promotion)
@@ -82,9 +84,7 @@ def update_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    promotion = (
-        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
-    )
+    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
     if promotion.user_id != current_user.id and current_user.role not in (
@@ -93,9 +93,12 @@ def update_promotion(
     ):
         raise HTTPException(status_code=403, detail="Acesso negado")
 
-    for var, value in vars(promotion_in).items():
-        if value is not None:
-            setattr(promotion, var, value)
+    update_data = promotion_in.dict(exclude_unset=True)
+    if "link" in update_data:
+        update_data["link"] = str(update_data["link"])  # Converter o link para string
+
+    for var, value in update_data.items():
+        setattr(promotion, var, value)
 
     db.commit()
     db.refresh(promotion)
@@ -108,9 +111,7 @@ def delete_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    promotion = (
-        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
-    )
+    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
     if promotion.user_id != current_user.id and current_user.role not in (
