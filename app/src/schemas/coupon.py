@@ -1,45 +1,41 @@
-# src/schemas/promotion.py
-
 from enum import Enum
 from typing import Optional
 
 from pydantic import AnyUrl, BaseModel
 
 
-class PromotionStatus(str, Enum):
+class CouponStatus(str, Enum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
     DENIED = "DENIED"
 
 
-class PromotionBase(BaseModel):
+class CouponBase(BaseModel):
     product: str
     link: AnyUrl
-    price: float
+    code: str
     comment: Optional[str] = None
-    image: Optional[str] = None
 
 
-class PromotionCreate(PromotionBase):
+class CouponCreate(CouponBase):
     pass
 
 
-class PromotionUpdate(BaseModel):
+class CouponUpdate(BaseModel):
     product: Optional[str]
     link: Optional[AnyUrl]
-    price: Optional[float]
+    code: Optional[str]
     comment: Optional[str]
-    status: Optional[PromotionStatus]
-    image: Optional[str]
+    status: Optional[CouponStatus]
 
 
-class PromotionInDBBase(PromotionBase):
+class CouponInDBBase(CouponBase):
     id: int
-    status: PromotionStatus
+    status: CouponStatus
     user_id: int
 
     model_config = {"from_attributes": True}
 
 
-class Promotion(PromotionInDBBase):
+class Coupon(CouponInDBBase):
     pass

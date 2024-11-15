@@ -32,7 +32,11 @@ def create_promotion(
 
 
 @router.get("/", response_model=List[Promotion])
-def read_promotions(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def read_promotions(
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+):
     promotions = (
         db.query(PromotionModel)
         .filter(PromotionModel.status == PromotionStatus.APPROVED)
@@ -44,7 +48,10 @@ def read_promotions(skip: int = 0, limit: int = 10, db: Session = Depends(get_db
 
 
 @router.get("/{promotion_id}", response_model=Promotion)
-def read_promotion(promotion_id: int, db: Session = Depends(get_db)):
+def read_promotion(
+    promotion_id: int,
+    db: Session = Depends(get_db),
+):
     promotion = (
         db.query(PromotionModel)
         .filter(
@@ -54,7 +61,9 @@ def read_promotion(promotion_id: int, db: Session = Depends(get_db)):
         .first()
     )
     if not promotion:
-        raise HTTPException(status_code=404, detail="Promoção não encontrada")
+        raise HTTPException(
+            status_code=404, detail="Promoção não encontrada ou não aprovada"
+        )
     return promotion
 
 
@@ -84,7 +93,9 @@ def update_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
+    promotion = (
+        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
+    )
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
     if promotion.user_id != current_user.id and current_user.role not in (
@@ -111,7 +122,9 @@ def delete_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
+    promotion = (
+        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
+    )  # noqa :E501
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
     if promotion.user_id != current_user.id and current_user.role not in (

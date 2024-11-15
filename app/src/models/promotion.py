@@ -21,6 +21,7 @@ class Promotion(Base):
     product = Column(String, nullable=False)
     link = Column(String, nullable=False)
     price = Column(Float, nullable=False)
+    image = Column(String, nullable=True)
     comment = Column(Text, nullable=True)
     status = Column(
         Enum(PromotionStatus), default=PromotionStatus.PENDING, nullable=False
@@ -29,5 +30,10 @@ class Promotion(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="promotions")
+    comments = relationship(
+        "Comment", back_populates="promotion", cascade="all, delete-orphan"
+    )
+    reactions = relationship(
+        "Reaction", back_populates="promotion", cascade="all, delete-orphan"
+    )

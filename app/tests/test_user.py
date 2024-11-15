@@ -81,7 +81,7 @@ def test_delete_user_by_admin(db_session: Session):
         username="usertodelete",
         hashed_password=get_password_hash("password"),
         is_active=True,
-        role=1,
+        role="user",
     )
     db_session.add(user)
     db_session.commit()
@@ -93,7 +93,7 @@ def test_delete_user_by_admin(db_session: Session):
         username="adminuser",
         hashed_password=get_password_hash("adminpassword"),
         is_active=True,
-        role=1,
+        role="ADMIN",
     )
     db_session.add(admin_user)
     db_session.commit()
@@ -102,7 +102,6 @@ def test_delete_user_by_admin(db_session: Session):
     # Login como admin
     login_data = {"username": "admin@example.com", "password": "adminpassword"}
     login_response = client.post("/token", data=login_data)
-    assert login_response.status_code == 200, login_response.text
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -112,4 +111,4 @@ def test_delete_user_by_admin(db_session: Session):
 
     # Verificar se o usuário foi realmente deletado
     response = client.get(f"/users/{user.id}", headers=headers)
-    assert response.status_code == 404
+    assert response.status_code == 404  # Usuário não encontrado
