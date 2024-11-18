@@ -40,6 +40,7 @@ def read_promotions(
     promotions = (
         db.query(PromotionModel)
         .filter(PromotionModel.status == PromotionStatus.APPROVED)
+        .order_by(PromotionModel.created_at.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -61,9 +62,7 @@ def read_promotion(
         .first()
     )
     if not promotion:
-        raise HTTPException(
-            status_code=404, detail="Promoção não encontrada ou não aprovada"
-        )
+        raise HTTPException(status_code=404, detail="Promoção não encontrada ou não aprovada")
     return promotion
 
 
@@ -93,9 +92,7 @@ def update_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    promotion = (
-        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
-    )
+    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
     if promotion.user_id != current_user.id and current_user.role not in (

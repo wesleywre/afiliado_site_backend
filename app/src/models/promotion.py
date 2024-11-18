@@ -23,17 +23,12 @@ class Promotion(Base):
     price = Column(Float, nullable=False)
     image = Column(String, nullable=True)
     comment = Column(Text, nullable=True)
-    status = Column(
-        Enum(PromotionStatus), default=PromotionStatus.PENDING, nullable=False
-    )
+    store = Column(String, nullable=True)
+    status = Column(Enum(PromotionStatus), default=PromotionStatus.PENDING, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="promotions")
-    comments = relationship(
-        "Comment", back_populates="promotion", cascade="all, delete-orphan"
-    )
-    reactions = relationship(
-        "Reaction", back_populates="promotion", cascade="all, delete-orphan"
-    )
+    comments = relationship("Comment", back_populates="promotion", cascade="all, delete-orphan")
+    reactions = relationship("Reaction", back_populates="promotion", cascade="all, delete-orphan")

@@ -1,5 +1,6 @@
 # src/schemas/promotion.py
 
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -31,12 +32,15 @@ class PromotionUpdate(BaseModel):
     comment: Optional[str]
     status: Optional[PromotionStatus]
     image: Optional[str]
+    store: Optional[str]
 
 
 class PromotionInDBBase(PromotionBase):
     id: int
     status: PromotionStatus
     user_id: int
+    store: str
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
