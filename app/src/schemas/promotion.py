@@ -18,7 +18,6 @@ class PromotionBase(BaseModel):
     link: AnyUrl
     price: float
     comment: Optional[str] = None
-    image: Optional[str] = None
 
 
 class PromotionCreate(PromotionBase):
@@ -26,20 +25,21 @@ class PromotionCreate(PromotionBase):
 
 
 class PromotionUpdate(BaseModel):
-    product: Optional[str]
-    link: Optional[AnyUrl]
-    price: Optional[float]
-    comment: Optional[str]
-    status: Optional[PromotionStatus]
-    image: Optional[str]
-    store: Optional[str]
+    product: Optional[str] = None
+    link: Optional[AnyUrl] = None
+    price: Optional[float] = None
+    comment: Optional[str] = None
+    status: Optional[PromotionStatus] = None
+    image: Optional[str] = None
+    store: Optional[str] = None
 
 
 class PromotionInDBBase(PromotionBase):
     id: int
     status: PromotionStatus
     user_id: int
-    store: str
+    store: Optional[str] = ""
+    image: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

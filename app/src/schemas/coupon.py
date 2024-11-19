@@ -22,11 +22,11 @@ class CouponCreate(CouponBase):
 
 
 class CouponUpdate(BaseModel):
-    product: Optional[str]
-    link: Optional[AnyUrl]
-    code: Optional[str]
-    comment: Optional[str]
-    status: Optional[CouponStatus]
+    product: Optional[str] = None
+    link: Optional[AnyUrl] = None
+    code: Optional[str] = None
+    comment: Optional[str] = None
+    status: Optional[CouponStatus] = None
 
 
 class CouponInDBBase(CouponBase):
