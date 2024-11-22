@@ -4,6 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from src.core.database import Base
 from src.models.comment import Comment
+from src.models.comment_like import CommentLike
 from src.models.coupon import Coupon
 from src.models.promotion import Promotion
 from src.models.reaction import Reaction

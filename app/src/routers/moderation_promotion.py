@@ -43,9 +43,7 @@ def update_promotion_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_moderator),
 ):
-    promotion = (
-        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
-    )
+    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
 
@@ -55,7 +53,7 @@ def update_promotion_status(
 
     for var, value in update_data.items():
         setattr(promotion, var, value)
-
+    print(update_data)
     db.commit()
     db.refresh(promotion)
     return promotion
@@ -67,9 +65,7 @@ def delete_promotion(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_moderator),
 ):
-    promotion = (
-        db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
-    )
+    promotion = db.query(PromotionModel).filter(PromotionModel.id == promotion_id).first()
     if not promotion:
         raise HTTPException(status_code=404, detail="Promoção não encontrada")
 

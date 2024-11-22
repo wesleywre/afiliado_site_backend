@@ -19,15 +19,8 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relacionamentos
-    promotions = relationship(
-        "Promotion", back_populates="user", cascade="all, delete-orphan"
-    )
-    coupons = relationship(
-        "Coupon", back_populates="user", cascade="all, delete-orphan"
-    )
-    comments = relationship(
-        "Comment", back_populates="user", cascade="all, delete-orphan"
-    )
-    reactions = relationship(
-        "Reaction", back_populates="user", cascade="all, delete-orphan"
-    )
+    promotions = relationship("Promotion", back_populates="user", cascade="all, delete-orphan")
+    coupons = relationship("Coupon", back_populates="user", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
+    reactions = relationship("Reaction", back_populates="user", cascade="all, delete-orphan")
+    comment_likes = relationship("CommentLike", back_populates="user")

@@ -21,3 +21,4 @@ class Comment(Base):
     user = relationship("User", back_populates="comments")
     promotion = relationship("Promotion", back_populates="comments")
     coupon = relationship("Coupon", back_populates="comments")
+    likes = relationship("CommentLike", back_populates="comment", cascade="all, delete-orphan")

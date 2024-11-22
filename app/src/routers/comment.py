@@ -37,17 +37,13 @@ def create_comment(
     # Verificar se a promoção existe
     if comment_in.promotion_id:
         promotion = (
-            db.query(PromotionModel)
-            .filter(PromotionModel.id == comment_in.promotion_id)
-            .first()
+            db.query(PromotionModel).filter(PromotionModel.id == comment_in.promotion_id).first()
         )
         if not promotion:
             raise HTTPException(status_code=404, detail="Promoção não encontrada.")
     # Verificar se o cupom existe
     if comment_in.coupon_id:
-        coupon = (
-            db.query(CouponModel).filter(CouponModel.id == comment_in.coupon_id).first()
-        )
+        coupon = db.query(CouponModel).filter(CouponModel.id == comment_in.coupon_id).first()
         if not coupon:
             raise HTTPException(status_code=404, detail="Cupom não encontrado.")
 
@@ -71,7 +67,8 @@ def read_comments(
         query = query.filter(CommentModel.promotion_id == promotion_id)
     if coupon_id:
         query = query.filter(CommentModel.coupon_id == coupon_id)
-    comments = query.offset(skip).limit(limit).all()
+    comments = query.order_by(CommentModel.created_at.asc()).offset(skip).limit(limit).all()
+
     return comments
 
 
@@ -91,9 +88,7 @@ def update_comment(
         "ADMIN",
         "MODERATOR",
     ):
-        raise HTTPException(
-            status_code=403, detail="Não autorizado a editar este comentário."
-        )
+        raise HTTPException(status_code=403, detail="Não autorizado a editar este comentário.")
 
     update_data = comment_in.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -115,9 +110,7 @@ def delete_comment(
 
     # Apenas moderadores e administradores podem deletar comentários
     if current_user.role not in ("ADMIN", "MODERATOR"):
-        raise HTTPException(
-            status_code=403, detail="Não autorizado a deletar este comentário."
-        )
+        raise HTTPException(status_code=403, detail="Não autorizado a deletar este comentário.")
 
     db.delete(comment)
     db.commit()

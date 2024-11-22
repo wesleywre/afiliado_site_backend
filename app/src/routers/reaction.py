@@ -36,9 +36,7 @@ def create_reaction(
     # Verificar se a promoção existe
     if reaction_in.promotion_id:
         promotion = (
-            db.query(PromotionModel)
-            .filter(PromotionModel.id == reaction_in.promotion_id)
-            .first()
+            db.query(PromotionModel).filter(PromotionModel.id == reaction_in.promotion_id).first()
         )
         if not promotion:
             raise HTTPException(status_code=404, detail="Promoção não encontrada.")
@@ -55,11 +53,7 @@ def create_reaction(
             raise HTTPException(status_code=400, detail="Você já curtiu esta promoção.")
     # Verificar se o cupom existe
     if reaction_in.coupon_id:
-        coupon = (
-            db.query(CouponModel)
-            .filter(CouponModel.id == reaction_in.coupon_id)
-            .first()
-        )
+        coupon = db.query(CouponModel).filter(CouponModel.id == reaction_in.coupon_id).first()
         if not coupon:
             raise HTTPException(status_code=404, detail="Cupom não encontrado.")
         # Verificar se já existe uma reação do usuário nesse cupom
@@ -145,13 +139,27 @@ def get_reactions_count(
             detail="Não é possível especificar ambos 'promotion_id' e 'coupon_id'.",
         )
     if promotion_id:
-        count = (
-            db.query(ReactionModel)
-            .filter(ReactionModel.promotion_id == promotion_id)
-            .count()
-        )
+        count = db.query(ReactionModel).filter(ReactionModel.promotion_id == promotion_id).count()
     if coupon_id:
-        count = (
-            db.query(ReactionModel).filter(ReactionModel.coupon_id == coupon_id).count()
-        )
+        count = db.query(ReactionModel).filter(ReactionModel.coupon_id == coupon_id).count()
     return count
+
+
+@router.get("/check", response_model=bool)
+def check_user_reaction(
+    promotion_id: Optional[int] = None,
+    coupon_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(get_current_user),
+):
+    if (promotion_id is None) == (coupon_id is None):
+        raise HTTPException(
+            status_code=400,
+            detail="Por favor, especifique 'promotion_id' ou 'coupon_id', mas não ambos.",
+        )
+    query = db.query(ReactionModel).filter(ReactionModel.user_id == user.id)
+    if promotion_id:
+        query = query.filter(ReactionModel.promotion_id == promotion_id)
+    if coupon_id:
+        query = query.filter(ReactionModel.coupon_id == coupon_id)
+    return query.first() is not None

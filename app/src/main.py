@@ -6,6 +6,7 @@ from .core.config import settings
 from .routers import (
     auth,
     comment,
+    comment_like,
     coupon,
     moderation_comment,
     moderation_coupon,
@@ -52,6 +53,11 @@ app.include_router(
     moderation_comment.router,
     prefix="/moderation/comments",
     tags=["Moderation - Comments"],
+)
+app.include_router(
+    comment_like.router,
+    prefix="/comment-likes",
+    tags=["Comment Likes"],
 )
 
 
