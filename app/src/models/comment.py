@@ -3,7 +3,7 @@
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 from src.core.database import Base
 
 
@@ -15,6 +15,7 @@ class Comment(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     promotion_id = Column(Integer, ForeignKey("promotions.id"), nullable=True)
     coupon_id = Column(Integer, ForeignKey("coupons.id"), nullable=True)
+    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
 
@@ -22,3 +23,6 @@ class Comment(Base):
     promotion = relationship("Promotion", back_populates="comments")
     coupon = relationship("Coupon", back_populates="comments")
     likes = relationship("CommentLike", back_populates="comment", cascade="all, delete-orphan")
+    replies = relationship(
+        "Comment", backref=backref("parent", remote_side=[id]), cascade="all, delete-orphan"
+    )

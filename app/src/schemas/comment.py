@@ -1,10 +1,12 @@
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional
 
 from pydantic import BaseModel
 
 
 class CommentBase(BaseModel):
     content: str
+    parent_id: Optional[int] = None
 
 
 class CommentCreate(CommentBase):
@@ -19,9 +21,15 @@ class CommentUpdate(BaseModel):
 class CommentInDBBase(CommentBase):
     id: int
     user_id: int
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
 
 class Comment(CommentInDBBase):
-    pass
+    replies: List["Comment"] = []  # Lista de respostas
+
+    model_config = {"from_attributes": True}
+
+
+Comment.model_rebuild()
