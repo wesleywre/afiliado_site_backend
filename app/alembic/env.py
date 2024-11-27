@@ -8,6 +8,7 @@ from src.models.comment_like import CommentLike
 from src.models.coupon import Coupon
 from src.models.promotion import Promotion
 from src.models.reaction import Reaction
+from src.models.refresh_token import RefreshToken
 from src.models.user import User
 
 # this is the Alembic Config object, which provides
