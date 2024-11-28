@@ -3,6 +3,8 @@
 from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
+from src.schemas.comment import Comment  # Importar o schema Comment se necessário
+from src.schemas.coupon import Coupon  # Importar o schema Coupon se necessário
 from src.schemas.promotion import Promotion  # Importar o schema Promotion se necessário
 
 
@@ -45,5 +47,17 @@ class UserResponse(UserInDBBase):
 
 class UserWithPromotions(UserInDBBase):
     promotions: List[Promotion] = []
+
+    model_config = {"from_attributes": True}
+
+
+class UserWithCoupons(UserInDBBase):
+    coupons: List[Coupon] = []
+
+    model_config = {"from_attributes": True}
+
+
+class UserWithComments(UserInDBBase):
+    comments: List[Comment] = []
 
     model_config = {"from_attributes": True}
