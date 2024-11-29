@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
@@ -88,9 +88,8 @@ def refresh_access_token(
     )
     if not db_token:
         raise HTTPException(status_code=401, detail="Refresh token inválido ou revogado.")
-
     # Verificar se o refresh token expirou
-    if db_token.expires_at < datetime.utcnow():
+    if db_token.expires_at < datetime.now(timezone.utc):
         # Remover token expirado do banco
         db.delete(db_token)
         db.commit()
