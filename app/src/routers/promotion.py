@@ -1,6 +1,7 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.core.security import get_current_user
@@ -133,3 +134,23 @@ def delete_promotion(
     db.delete(promotion)
     db.commit()
     return None
+
+
+@router.get("/search/")
+async def search_promotions(
+    q: str = Query(None), skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+):
+    query = db.query(PromotionModel).filter(PromotionModel.status == PromotionStatus.APPROVED)
+
+    if q:
+        search = f"%{q}%"
+        query = query.filter(
+            or_(
+                PromotionModel.product.ilike(search),
+                PromotionModel.store.ilike(search),
+                PromotionModel.comment.ilike(search),
+            )
+        )
+
+    promotions = query.offset(skip).limit(limit).all()
+    return promotions

@@ -52,6 +52,17 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 
+@router.get("/users/username/{username}", response_model=UserResponse)
+def read_user_by_username(
+    username: str,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return user
+
+
 @router.put("/users/me/", response_model=UserResponse)
 def update_user_me(
     user_in: UserUpdate,
@@ -102,42 +113,24 @@ def delete_user(
 
 
 @router.get("/users/{user_id}/promotions/", response_model=UserWithPromotions)
-def read_user_promotions(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
+def read_user_promotions(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    if user.id != current_user.id and current_user.role not in ("MODERATOR", "ADMIN"):
-        raise HTTPException(status_code=403, detail="Acesso negado")
     return user
 
 
 @router.get("/users/{user_id}/coupons/", response_model=UserWithCoupons)
-def read_user_coupons(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
+def read_user_coupons(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    if user.id != current_user.id and current_user.role not in ("MODERATOR", "ADMIN"):
-        raise HTTPException(status_code=403, detail="Acesso negado")
     return user
 
 
 @router.get("/users/{user_id}/comments/", response_model=UserWithComments)
-def read_user_comments(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
+def read_user_comments(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    if user.id != current_user.id and current_user.role not in ("MODERATOR", "ADMIN"):
-        raise HTTPException(status_code=403, detail="Acesso negado")
     return user

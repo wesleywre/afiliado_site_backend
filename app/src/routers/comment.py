@@ -36,19 +36,8 @@ def create_comment(
             status_code=400,
             detail="Especifique apenas um entre 'promotion_id', 'coupon_id' ou 'parent_id'.",
         )
-    # Verificar se a promoção existe
-    if comment_in.promotion_id:
-        promotion = (
-            db.query(PromotionModel).filter(PromotionModel.id == comment_in.promotion_id).first()
-        )
-        if not promotion:
-            raise HTTPException(status_code=404, detail="Promoção não encontrada.")
-    # Verificar se o cupom existe
-    if comment_in.coupon_id:
-        coupon = db.query(CouponModel).filter(CouponModel.id == comment_in.coupon_id).first()
-        if not coupon:
-            raise HTTPException(status_code=404, detail="Cupom não encontrado.")
-    # Verificar se o comentário pai existe
+
+    # Verificar se o comentário pai existe e herdar os IDs
     if comment_in.parent_id:
         parent_comment = (
             db.query(CommentModel).filter(CommentModel.id == comment_in.parent_id).first()
@@ -56,6 +45,30 @@ def create_comment(
         if not parent_comment:
             raise HTTPException(status_code=404, detail="Comentário pai não encontrado.")
 
+        # Herdar o promotion_id ou coupon_id do comentário pai
+        if parent_comment.promotion_id:
+            comment_in.promotion_id = parent_comment.promotion_id
+        elif parent_comment.coupon_id:
+            comment_in.coupon_id = parent_comment.coupon_id
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Comentário pai não está associado a uma promoção ou cupom.",
+            )
+    elif comment_in.promotion_id:
+        # Verificar se a promoção existe
+        promotion = (
+            db.query(PromotionModel).filter(PromotionModel.id == comment_in.promotion_id).first()
+        )
+        if not promotion:
+            raise HTTPException(status_code=404, detail="Promoção não encontrada.")
+    elif comment_in.coupon_id:
+        # Verificar se o cupom existe
+        coupon = db.query(CouponModel).filter(CouponModel.id == comment_in.coupon_id).first()
+        if not coupon:
+            raise HTTPException(status_code=404, detail="Cupom não encontrado.")
+
+    # Criar o comentário
     comment = CommentModel(**comment_in.model_dump(), user_id=current_user.id)
     db.add(comment)
     db.commit()
