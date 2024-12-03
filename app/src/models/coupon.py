@@ -21,16 +21,14 @@ class Coupon(Base):
     product = Column(String, nullable=False)
     link = Column(String, nullable=False)
     code = Column(String, nullable=False)
+    image = Column(String, nullable=True)
     comment = Column(Text, nullable=True)
+    store = Column(String, nullable=True)
     status = Column(Enum(CouponStatus), default=CouponStatus.PENDING, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="coupons")
-    comments = relationship(
-        "Comment", back_populates="coupon", cascade="all, delete-orphan"
-    )
-    reactions = relationship(
-        "Reaction", back_populates="coupon", cascade="all, delete-orphan"
-    )
+    comments = relationship("Comment", back_populates="coupon", cascade="all, delete-orphan")
+    reactions = relationship("Reaction", back_populates="coupon", cascade="all, delete-orphan")
