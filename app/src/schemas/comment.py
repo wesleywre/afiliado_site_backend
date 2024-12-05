@@ -23,6 +23,7 @@ class CommentInDBBase(CommentBase):
     user_id: int
     created_at: datetime
     promotion_id: Optional[int] = None
+    coupon_id: Optional[int] = None
 
     model_config = {"from_attributes": True}
 
