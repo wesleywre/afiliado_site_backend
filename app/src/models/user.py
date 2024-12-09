@@ -23,7 +23,9 @@ class User(Base):
     coupons = relationship("Coupon", back_populates="user", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
     reactions = relationship("Reaction", back_populates="user", cascade="all, delete-orphan")
-    comment_likes = relationship("CommentLike", back_populates="user")
+    comment_likes = relationship(
+        "CommentLike", back_populates="user", cascade="all, delete-orphan"
+    )
     refresh_tokens = relationship(
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
     )

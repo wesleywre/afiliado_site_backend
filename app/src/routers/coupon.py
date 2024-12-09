@@ -2,7 +2,8 @@
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.core.security import get_current_user
@@ -108,9 +109,7 @@ def delete_coupon(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    coupon = (
-        db.query(CouponModel).filter(CouponModel.id == coupon_id).first()
-    )  # noqa :E501
+    coupon = db.query(CouponModel).filter(CouponModel.id == coupon_id).first()  # noqa :E501
     if not coupon:
         raise HTTPException(status_code=404, detail="Cupom não encontrado")
     if coupon.user_id != current_user.id and current_user.role not in (
@@ -122,3 +121,23 @@ def delete_coupon(
     db.delete(coupon)
     db.commit()
     return None
+
+
+@router.get("/search/")
+async def search_coupons(
+    q: str = Query(None), skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+):
+    query = db.query(CouponModel).filter(CouponModel.status == CouponStatus.APPROVED)
+
+    if q:
+        search = f"%{q}%"
+        query = query.filter(
+            or_(
+                CouponModel.product.ilike(search),
+                CouponModel.store.ilike(search),
+                CouponModel.comment.ilike(search),
+            )
+        )
+
+    coupons = query.offset(skip).limit(limit).all()
+    return coupons
