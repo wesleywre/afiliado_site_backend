@@ -117,6 +117,8 @@ def read_user_promotions(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    promotions = sorted(user.promotions, key=lambda promotion: promotion.created_at, reverse=True)
+    user.promotions = promotions
     return user
 
 
@@ -125,6 +127,8 @@ def read_user_coupons(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    coupons = sorted(user.coupons, key=lambda coupon: coupon.created_at, reverse=True)
+    user.coupons = coupons
     return user
 
 
@@ -133,4 +137,6 @@ def read_user_comments(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    comments = sorted(user.comments, key=lambda comment: comment.created_at, reverse=True)
+    user.comments = comments
     return user

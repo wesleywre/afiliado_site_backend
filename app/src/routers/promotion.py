@@ -152,5 +152,5 @@ async def search_promotions(
             )
         )
 
-    promotions = query.offset(skip).limit(limit).all()
+    promotions = query.order_by(PromotionModel.created_at.desc()).offset(skip).limit(limit).all()
     return promotions

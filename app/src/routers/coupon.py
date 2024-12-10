@@ -34,6 +34,7 @@ def read_coupons(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     coupons = (
         db.query(CouponModel)
         .filter(CouponModel.status == CouponStatus.APPROVED)
+        .order_by(CouponModel.created_at.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -139,5 +140,5 @@ async def search_coupons(
             )
         )
 
-    coupons = query.offset(skip).limit(limit).all()
+    coupons = query.order_by(CouponModel.created_at.desc()).offset(skip).limit(limit).all()
     return coupons
