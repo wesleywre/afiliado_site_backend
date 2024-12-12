@@ -1,5 +1,8 @@
+import redis.asyncio as redis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 
 from .api.v1.router import api_router
 from .core.config import settings
@@ -30,6 +33,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    redis_client = redis.from_url(
+        "redis://0.0.0.0:6379",
+        encoding="utf8",
+        decode_responses=True,
+        socket_timeout=1,
+        socket_connect_timeout=1,
+        retry_on_timeout=True,
+        health_check_interval=30,
+    )
+
+    FastAPICache.init(RedisBackend(redis_client), prefix="promotions_coupons-cache:")
+
 
 # Incluir rotas
 app.include_router(api_router, prefix=settings.API_V1_STR)

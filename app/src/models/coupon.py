@@ -3,7 +3,7 @@
 from datetime import datetime
 from enum import Enum as PyEnum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import relationship
 from src.core.database import Base
 
@@ -16,6 +16,17 @@ class CouponStatus(PyEnum):
 
 class Coupon(Base):
     __tablename__ = "coupons"
+
+    __table_args__ = (
+        # Índice para status e data de criação (ordenação)
+        Index("idx_coupon_status_created_at", "status", "created_at"),
+        # Índice para busca textual
+        Index("idx_coupon_search_text", "product", "store", "comment"),
+        # Índice para relacionamentos e filtros frequentes
+        Index("idx_coupon_user_id", "user_id"),
+        Index("idx_coupon_store", "store"),
+        Index("idx_coupon_status", "status"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     product = Column(String, nullable=False)

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi_cache.decorator import cache
+from sqlalchemy.orm import Session, joinedload
 from src.core.database import get_db
 from src.core.security import (
     get_current_active_user,
@@ -113,30 +114,35 @@ def delete_user(
 
 
 @router.get("/users/{user_id}/promotions/", response_model=UserWithPromotions)
-def read_user_promotions(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
+@cache(expire=60)
+async def read_user_promotions(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).options(joinedload(User.promotions)).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    promotions = sorted(user.promotions, key=lambda promotion: promotion.created_at, reverse=True)
-    user.promotions = promotions
+
+    user.promotions = sorted(
+        user.promotions, key=lambda promotion: promotion.created_at, reverse=True
+    )
     return user
 
 
 @router.get("/users/{user_id}/coupons/", response_model=UserWithCoupons)
-def read_user_coupons(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
+@cache(expire=60)
+async def read_user_coupons(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).options(joinedload(User.coupons)).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    coupons = sorted(user.coupons, key=lambda coupon: coupon.created_at, reverse=True)
-    user.coupons = coupons
+
+    user.coupons = sorted(user.coupons, key=lambda coupon: coupon.created_at, reverse=True)
     return user
 
 
 @router.get("/users/{user_id}/comments/", response_model=UserWithComments)
-def read_user_comments(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
+@cache(expire=60)
+async def read_user_comments(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).options(joinedload(User.comments)).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    comments = sorted(user.comments, key=lambda comment: comment.created_at, reverse=True)
-    user.comments = comments
+
+    user.comments = sorted(user.comments, key=lambda comment: comment.created_at, reverse=True)
     return user

@@ -3,8 +3,9 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from fastapi_cache.decorator import cache
+from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload, selectinload
 from src.core.database import get_db
 from src.core.security import get_current_user
 from src.models.coupon import Coupon as CouponModel
@@ -30,9 +31,15 @@ def create_coupon(
 
 
 @router.get("/", response_model=List[Coupon])
+@cache(expire=60)
 def read_coupons(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     coupons = (
         db.query(CouponModel)
+        .options(
+            # Carregamento otimizado de relacionamentos
+            joinedload(CouponModel.user),
+            selectinload(CouponModel.comments),
+        )
         .filter(CouponModel.status == CouponStatus.APPROVED)
         .order_by(CouponModel.created_at.desc())
         .offset(skip)
@@ -125,20 +132,30 @@ def delete_coupon(
 
 
 @router.get("/search/")
+@cache(expire=30)
 async def search_coupons(
     q: str = Query(None), skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
     query = db.query(CouponModel).filter(CouponModel.status == CouponStatus.APPROVED)
 
     if q:
-        search = f"%{q}%"
-        query = query.filter(
-            or_(
-                CouponModel.product.ilike(search),
-                CouponModel.store.ilike(search),
-                CouponModel.comment.ilike(search),
-            )
+        # Usar full-text search
+        search_vector = func.to_tsvector(
+            "portuguese",
+            func.concat(CouponModel.product, " ", CouponModel.store, " ", CouponModel.comment),
         )
+        search_query = func.plainto_tsquery("portuguese", q)
 
-    coupons = query.order_by(CouponModel.created_at.desc()).offset(skip).limit(limit).all()
+        query = query.filter(search_vector.op("@@")(search_query))
+
+    coupons = (
+        query.order_by(
+            # Ranking de relevância
+            func.ts_rank(search_vector, search_query).desc(),
+            CouponModel.created_at.desc(),
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return coupons

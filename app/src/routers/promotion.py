@@ -1,8 +1,9 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from fastapi_cache.decorator import cache
+from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload, selectinload
 from src.core.database import get_db
 from src.core.security import get_current_user
 from src.models.promotion import Promotion as PromotionModel
@@ -33,6 +34,7 @@ def create_promotion(
 
 
 @router.get("/", response_model=List[Promotion])
+@cache(expire=60)
 def read_promotions(
     skip: int = 0,
     limit: int = 10,
@@ -40,6 +42,11 @@ def read_promotions(
 ):
     promotions = (
         db.query(PromotionModel)
+        .options(
+            # Carregamento otimizado de relacionamentos
+            joinedload(PromotionModel.user),
+            selectinload(PromotionModel.comments),
+        )
         .filter(PromotionModel.status == PromotionStatus.APPROVED)
         .order_by(PromotionModel.created_at.desc())
         .offset(skip)
@@ -137,20 +144,32 @@ def delete_promotion(
 
 
 @router.get("/search/")
+@cache(expire=30)
 async def search_promotions(
     q: str = Query(None), skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
     query = db.query(PromotionModel).filter(PromotionModel.status == PromotionStatus.APPROVED)
 
     if q:
-        search = f"%{q}%"
-        query = query.filter(
-            or_(
-                PromotionModel.product.ilike(search),
-                PromotionModel.store.ilike(search),
-                PromotionModel.comment.ilike(search),
-            )
+        # Usar full-text search
+        search_vector = func.to_tsvector(
+            "portuguese",
+            func.concat(
+                PromotionModel.product, " ", PromotionModel.store, " ", PromotionModel.comment
+            ),
         )
+        search_query = func.plainto_tsquery("portuguese", q)
 
-    promotions = query.order_by(PromotionModel.created_at.desc()).offset(skip).limit(limit).all()
+        query = query.filter(search_vector.op("@@")(search_query))
+
+    promotions = (
+        query.order_by(
+            # Ranking de relevância
+            func.ts_rank(search_vector, search_query).desc(),
+            PromotionModel.created_at.desc(),
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return promotions
