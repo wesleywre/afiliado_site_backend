@@ -38,7 +38,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     redis_client = redis.from_url(
-        "redis://0.0.0.0:6379",
+        "redis://new-kit-40601.upstash.io:6379",
         encoding="utf8",
         decode_responses=True,
         socket_timeout=1,
