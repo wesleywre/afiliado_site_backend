@@ -28,7 +28,9 @@ app = FastAPI(
 # Configuração CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configurar com as origens permitidas em produção
+    allow_origins=[
+        "https://afiliado-site-backend.onrender.com"
+    ],  # Configurar com as origens permitidas em produção
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
