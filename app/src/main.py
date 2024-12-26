@@ -28,7 +28,7 @@ app = FastAPI(
 # Configuração CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://afiliado-site-git-fix-eslint-wesleywres-projects.vercel.app"],
+    allow_origins=["https://afiliado-site-git-dev-wesleywres-projects.vercel.app"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
